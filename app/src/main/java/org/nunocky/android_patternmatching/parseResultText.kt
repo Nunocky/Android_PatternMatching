@@ -12,5 +12,5 @@ fun parseResultText(targetStr: String): Pair<Byte, Byte> {
         return Pair(key, value)
     }
 
-    throw Exception()
+    throw IllegalArgumentException("不適切な文字列")
 }

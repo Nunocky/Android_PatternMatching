@@ -27,21 +27,20 @@ class ExampleUnitTest {
 
         val targetStr = "[result] key:0x55 val:0xaa"
 
-        val kv: Result<Pair<Byte, Byte>> = runCatching { parseResultText(targetStr) }
+        runCatching { parseResultText(targetStr) }
+            .fold(
+                onSuccess = {
+                    val key = it.first
+                    val value = it.second
 
-        assertTrue(kv.isSuccess)
-
-        kv.onSuccess {
-            val key = it.first
-            val value = it.second
-
-            assertEquals(0x55.toByte(), key)
-            assertEquals(0xaa.toByte(), value)
-        }
-
-        kv.onFailure {
-            fail()
-        }
+                    assertEquals(0x55.toByte(), key)
+                    assertEquals(0xaa.toByte(), value)
+                },
+                onFailure = {
+                    it.printStackTrace()
+                    fail()
+                }
+            )
     }
 
     /**
@@ -51,8 +50,19 @@ class ExampleUnitTest {
     fun testRegExpFail1() {
         val targetStr = "[KeyValue] key:0x55 val:0xaa."
 
-        val kv: Result<Pair<Byte, Byte>> = runCatching { parseResultText(targetStr) }
-        assertTrue(kv.isFailure)
+        runCatching { parseResultText(targetStr) }
+            .fold(
+                onSuccess = {
+                    // こちらを通ってはならない
+                    fail()
+                },
+                onFailure = {
+                    // こちらに来るのが正しい
+                    //it.printStackTrace()
+                }
+
+            )
+
     }
 
     /**
@@ -64,5 +74,7 @@ class ExampleUnitTest {
 
         val kv: Result<Pair<Byte, Byte>> = runCatching { parseResultText(targetStr) }
         assertTrue(kv.isFailure)
+
+        //kv.exceptionOrNull()?.printStackTrace()
     }
 }
